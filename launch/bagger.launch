@@ -1,0 +1,12 @@
+<launch>
+    <arg name="topics"                          default="[scan, odom_comb]" />
+    <arg name="trigger_timeout"                 default="5" />
+    <arg name="trigger_topic"                   default="people_filter/people_tracker_measurements" />
+    <arg name="topic_when_triggered"            default="imu_data" />
+    <node pkg="ros_bagger" type="bagger.py" name="ros_bagger" output="screen" >
+        <rosparam param="topics" subst_value="True">$(arg topics)</rosparam>
+        <param name="trigger_timeout"               value="$(arg trigger_timeout)" />
+        <param name="trigger_topic"                 value="$(arg trigger_topic)" />
+        <param name="topic_when_triggered"          value="$(arg topic_when_triggered)" />
+    </node>
+</launch>

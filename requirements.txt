@@ -1,0 +1,5 @@
+pycryptodomex
+python-gnupg
+threading
+datetime
+pathlib
