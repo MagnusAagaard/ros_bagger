@@ -9,4 +9,5 @@
         <param name="trigger_topic"                 value="$(arg trigger_topic)" />
         <param name="topic_when_triggered"          value="$(arg topic_when_triggered)" />
     </node>
+    <include file="$(find ros_bagger)/launch/realsense.launch"/>
 </launch>
