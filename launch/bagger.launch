@@ -1,4 +1,5 @@
 <launch>
+    <include file="$(find ros_bagger)/launch/realsense.launch"/>
     <arg name="topics"                          default="[scan, tf, tf_static, map, odom, move_base_node/local_costmap/robot_footprint, move_base_node/current_goal, move_base_node/MIRPlannerROS/global_plan, move_base_node/MIRPlannerROS/local_plan]" />
     <arg name="trigger_timeout"                 default="5" />
     <arg name="trigger_topic"                   default="people_filter/people_tracker_measurements" />
@@ -9,5 +10,4 @@
         <param name="trigger_topic"                 value="$(arg trigger_topic)" />
         <param name="topic_when_triggered"          value="$(arg topic_when_triggered)" />
     </node>
-    <include file="$(find ros_bagger)/launch/realsense.launch"/>
 </launch>
