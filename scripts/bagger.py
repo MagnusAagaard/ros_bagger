@@ -42,12 +42,12 @@ class Bagger:
             sys.exit(-1)
 
     def __init_subscribers(self):
-        trigger_class, _, _ = rostopic.get_topic_class('/{}'.format(self.trigger_topic), blocking=True)
-        rospy.Subscriber(self.trigger_topic, trigger_class, self.__trigger_cb, queue_size=1)
-        topic_when_triggered_class, _, _ = rostopic.get_topic_class('/{}'.format(self.topic_when_triggered), blocking=True)
-        rospy.Subscriber(self.topic_when_triggered, topic_when_triggered_class, self.__topic_when_triggered_cb, queue_size=1)
+        #trigger_class, _, _ = rostopic.get_topic_class('/{}'.format(self.trigger_topic), blocking=True)
+        #rospy.Subscriber(self.trigger_topic, trigger_class, self.__trigger_cb, queue_size=1)
+        #topic_when_triggered_class, _, _ = rostopic.get_topic_class('/{}'.format(self.topic_when_triggered), blocking=True)
+        #rospy.Subscriber(self.topic_when_triggered, topic_when_triggered_class, self.__topic_when_triggered_cb, queue_size=1)
         for topic in self.topics:
-            topic_class, _, _ = rostopic.get_topic_class('/{}'.format(topic))
+            topic_class, _, _ = rostopic.get_topic_class('/{}'.format(topic), blocking=True)
             rospy.loginfo(f'Subscribing to topic \'{topic}\' with class \'{topic_class}\'..')
             rospy.Subscriber(topic, topic_class, callback=self.__callback_creator(topic), queue_size=1)
         
