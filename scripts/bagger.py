@@ -4,6 +4,7 @@ import rosbag
 import rostopic
 import sys
 from people_msgs.msg import PositionMeasurementArray
+from std_msgs.msg import Bool
 from threading import Lock
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +19,8 @@ class Bagger:
         self.bag = rosbag.Bag(f'{Path.home()}/{now}.bag', 'w')
         self.lock.release()
         self.__init_subscribers()
+        self.time_update_done = False
+        self.time_delay = 0
 
     def __del__(self):
         rospy.loginfo("Shutting down bagger")
@@ -42,14 +45,20 @@ class Bagger:
             sys.exit(-1)
 
     def __init_subscribers(self):
-        #trigger_class, _, _ = rostopic.get_topic_class('/{}'.format(self.trigger_topic), blocking=True)
-        #rospy.Subscriber(self.trigger_topic, trigger_class, self.__trigger_cb, queue_size=1)
-        #topic_when_triggered_class, _, _ = rostopic.get_topic_class('/{}'.format(self.topic_when_triggered), blocking=True)
-        #rospy.Subscriber(self.topic_when_triggered, topic_when_triggered_class, self.__topic_when_triggered_cb, queue_size=1)
+        time_update = rospy.Subscriber('/time_update_done', Bool, callback=self.__time_update_cb)
+        while not self.time_update_done:
+            rospy.sleep(0.1)
+        trigger_class, _, _ = rostopic.get_topic_class('/{}'.format(self.trigger_topic), blocking=True)
+        rospy.Subscriber(self.trigger_topic, trigger_class, self.__trigger_cb, queue_size=1)
+        topic_when_triggered_class, _, _ = rostopic.get_topic_class('/{}'.format(self.topic_when_triggered), blocking=True)
+        rospy.Subscriber(self.topic_when_triggered, topic_when_triggered_class, self.__topic_when_triggered_cb, queue_size=1)
         for topic in self.topics:
             topic_class, _, _ = rostopic.get_topic_class('/{}'.format(topic), blocking=True)
             rospy.loginfo(f'Subscribing to topic \'{topic}\' with class \'{topic_class}\'..')
             rospy.Subscriber(topic, topic_class, callback=self.__callback_creator(topic), queue_size=1)
+
+    def __time_update_cb(self, msg):
+        self.time_update_done = True
         
     def __trigger_cb(self, msg):
         self.time_since_last_trigger_msg = rospy.Time.now()
@@ -65,6 +74,13 @@ class Bagger:
             self.lock.acquire()
             self.bag.write(topic, msg)
             self.lock.release()
+            if self.time_delay == 0:
+                try:
+                    time = msg.header.stamp
+                    print(time)
+                    self.time_delay = time
+                except Exception:
+
         return callback
 
 def main():
